@@ -1,22 +1,4 @@
-/*!
-
-=========================================================
-* Argon Dashboard React - v1.2.4
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-// reactstrap components
+import { useState, useEffect } from "react";
 import {
   Button,
   Card,
@@ -28,159 +10,159 @@ import {
   Container,
   Row,
   Col,
+  Badge
 } from "reactstrap";
-// core components
-import UserHeader from "components/Headers/UserHeader.js";
+import UserHeader from '../../components/Headers/UserHeader';
+import { Edit, Save, Lock, Book, Users, Mail, X, User, Camera } from 'react-feather';
+
+const LOCAL_STORAGE_KEY = "userProfileData";
 
 const Profile = () => {
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "Aline jesse",
+    email: "jesse@example.com",
+    firstName: "Aline",
+    lastName: "Jesse",
+    address: "São Tomé",
+    city: "Água Grande",
+    country: "São Tomé e Príncipe",
+    aboutMe: "Sou estudante universitário.",
+    userType: "student",
+    profilePhoto: "", // base64 ou URL da imagem
+    courses: [
+      { id: 1, name: "Matemática Avançada", code: "MAT202" },
+      { id: 2, name: "Física Quântica", code: "FIS301" }
+    ]
+  });
+
+  useEffect(() => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, profilePhoto: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSave = () => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
+    setEditMode(false);
+  };
+
+  const handleCancel = () => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (savedData) {
+      setFormData(JSON.parse(savedData));
+    }
+    setEditMode(false);
+  };
+
   return (
     <>
       <UserHeader />
-      {/* Page content */}
-      <Container className="mt--7" fluid>
+      <Container style={{ marginTop: '-280px' }} fluid>
         <Row>
-          <Col className="order-xl-2 mb-5 mb-xl-0" xl="4">
-            <Card className="card-profile shadow">
-              <Row className="justify-content-center">
-                <Col className="order-lg-2" lg="3">
-                  <div className="card-profile-image">
-                    <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                      <img
-                        alt="..."
-                        className="rounded-circle"
-                        src={require("../../assets/img/theme/team-4-800x800.jpg")}
-                      />
-                    </a>
-                  </div>
-                </Col>
-              </Row>
-              <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                <div className="d-flex justify-content-between">
-                  <Button
-                    className="mr-4"
-                    color="info"
-                    href="#pablo"
-                    onClick={(e) => e.preventDefault()}
-                    size="sm"
-                  >
-                    Connect
-                  </Button>
-                  <Button
-                    className="float-right"
-                    color="default"
-                    href="#pablo"
-                    onClick={(e) => e.preventDefault()}
-                    size="sm"
-                  >
-                    Message
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardBody className="pt-0 pt-md-4">
-                <Row>
-                  <div className="col">
-                    <div className="card-profile-stats d-flex justify-content-center mt-md-5">
-                      <div>
-                        <span className="heading">22</span>
-                        <span className="description">Friends</span>
-                      </div>
-                      <div>
-                        <span className="heading">10</span>
-                        <span className="description">Photos</span>
-                      </div>
-                      <div>
-                        <span className="heading">89</span>
-                        <span className="description">Comments</span>
-                      </div>
-                    </div>
-                  </div>
-                </Row>
-                <div className="text-center">
-                  <h3>
-                    Jessica Jones
-                    <span className="font-weight-light">, 27</span>
-                  </h3>
-                  <div className="h5 font-weight-300">
-                    <i className="ni location_pin mr-2" />
-                    Bucharest, Romania
-                  </div>
-                  <div className="h5 mt-4">
-                    <i className="ni business_briefcase-24 mr-2" />
-                    Solution Manager - Creative Tim Officer
-                  </div>
-                  <div>
-                    <i className="ni education_hat mr-2" />
-                    University of Computer Science
-                  </div>
-                  <hr className="my-4" />
-                  <p>
-                    Ryan — the name taken by Melbourne-raised, Brooklyn-based
-                    Nick Murphy — writes, performs and records all of his own
-                    music.
-                  </p>
-                  <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                    Show more
-                  </a>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col className="order-xl-1" xl="8">
-            <Card className="bg-secondary shadow">
+          <Col className="order-xl-1" xl="10" lg="12" md="12" sm="12">
+            <Card className="bg-secondary shadow" style={{ marginTop: '-280px' }}>
               <CardHeader className="bg-white border-0">
                 <Row className="align-items-center">
                   <Col xs="8">
-                    <h3 className="mb-0">My account</h3>
+                    <h3 className="mb-0">Minha Conta</h3>
+                    <Badge color={formData.userType === 'teacher' ? 'info' : 'success'} className="mt-2">
+                      {formData.userType === 'teacher' ? 'Professor' : 'Aluno'}
+                    </Badge>
                   </Col>
                   <Col className="text-right" xs="4">
-                    <Button
-                      color="primary"
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                      size="sm"
-                    >
-                      Settings
-                    </Button>
+                    {editMode ? (
+                      <>
+                        <Button color="danger" onClick={handleCancel} size="sm" className="mr-2">
+                          <X size={14} className="mr-1" />
+                          Cancelar
+                        </Button>
+                        <Button color="primary" onClick={handleSave} size="sm">
+                          <Save size={14} className="mr-1" />
+                          Salvar
+                        </Button>
+                      </>
+                    ) : (
+                      <Button color="primary" onClick={() => setEditMode(true)} size="sm">
+                        <Edit size={14} className="mr-1" />
+                        Editar Perfil
+                      </Button>
+                    )}
                   </Col>
                 </Row>
               </CardHeader>
+
               <CardBody>
                 <Form>
+                  {/* Foto de Perfil */}
+                  <div className="text-center mb-4">
+                    <img
+                      src={formData.profilePhoto || "https://via.placeholder.com/150"}
+                      alt="Foto de perfil"
+                      className="rounded-circle"
+                      width="150"
+                      height="150"
+                    />
+                    {editMode && (
+                      <div className="mt-2">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handlePhotoChange}
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Informações do Usuário */}
                   <h6 className="heading-small text-muted mb-4">
-                    User information
+                    <Mail size={16} className="mr-2" />
+                    Informações do Usuário
                   </h6>
                   <div className="pl-lg-4">
                     <Row>
                       <Col lg="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-username"
-                          >
-                            Username
-                          </label>
+                          <label htmlFor="input-username">Nome de utilizador</label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue="lucky.jesse"
                             id="input-username"
-                            placeholder="Username"
+                            name="username"
                             type="text"
+                            value={formData.username}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                       <Col lg="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-email"
-                          >
-                            Email address
-                          </label>
+                          <label htmlFor="input-email">Email</label>
                           <Input
-                            className="form-control-alternative"
                             id="input-email"
-                            placeholder="jesse@example.com"
+                            name="email"
                             type="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
@@ -188,61 +170,52 @@ const Profile = () => {
                     <Row>
                       <Col lg="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-first-name"
-                          >
-                            First name
-                          </label>
+                          <label htmlFor="input-first-name">Nome</label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue="Lucky"
                             id="input-first-name"
-                            placeholder="First name"
+                            name="firstName"
                             type="text"
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                       <Col lg="6">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-last-name"
-                          >
-                            Last name
-                          </label>
+                          <label htmlFor="input-last-name">Sobrenome</label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue="Jesse"
                             id="input-last-name"
-                            placeholder="Last name"
+                            name="lastName"
                             type="text"
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                     </Row>
                   </div>
+
                   <hr className="my-4" />
-                  {/* Address */}
+
+                  {/* Informações de Contato */}
                   <h6 className="heading-small text-muted mb-4">
-                    Contact information
+                    <Mail size={16} className="mr-2" />
+                    Informações de Contato
                   </h6>
                   <div className="pl-lg-4">
                     <Row>
                       <Col md="12">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-address"
-                          >
-                            Address
-                          </label>
+                          <label htmlFor="input-address">Endereço</label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
                             id="input-address"
-                            placeholder="Home Address"
+                            name="address"
                             type="text"
+                            value={formData.address}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
@@ -250,71 +223,87 @@ const Profile = () => {
                     <Row>
                       <Col lg="4">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-city"
-                          >
-                            City
-                          </label>
+                          <label htmlFor="input-city">Cidade</label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue="New York"
                             id="input-city"
-                            placeholder="City"
+                            name="city"
                             type="text"
+                            value={formData.city}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                       <Col lg="4">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-country"
-                          >
-                            Country
-                          </label>
+                          <label htmlFor="input-country">País</label>
                           <Input
-                            className="form-control-alternative"
-                            defaultValue="United States"
                             id="input-country"
-                            placeholder="Country"
+                            name="country"
                             type="text"
-                          />
-                        </FormGroup>
-                      </Col>
-                      <Col lg="4">
-                        <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-country"
-                          >
-                            Postal code
-                          </label>
-                          <Input
-                            className="form-control-alternative"
-                            id="input-postal-code"
-                            placeholder="Postal code"
-                            type="number"
+                            value={formData.country}
+                            onChange={handleChange}
+                            disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                     </Row>
                   </div>
+
                   <hr className="my-4" />
-                  {/* Description */}
-                  <h6 className="heading-small text-muted mb-4">About me</h6>
+
+                  {/* Sobre Mim */}
+                  <h6 className="heading-small text-muted mb-4">
+                    <User size={16} className="mr-2" />
+                    Sobre Mim
+                  </h6>
                   <div className="pl-lg-4">
                     <FormGroup>
-                      <label>About Me</label>
+                      <label>Sobre mim</label>
                       <Input
-                        className="form-control-alternative"
-                        placeholder="A few words about you ..."
+                        name="aboutMe"
                         rows="4"
-                        defaultValue="A beautiful Dashboard for Bootstrap 4. It is Free and
-                        Open Source."
                         type="textarea"
+                        value={formData.aboutMe}
+                        onChange={handleChange}
+                        disabled={!editMode}
                       />
                     </FormGroup>
+                  </div>
+
+                  <hr className="my-4" />
+
+                  {/* Cursos ou Disciplinas */}
+                  <h6 className="heading-small text-muted mb-4">
+                    {formData.userType === 'teacher' ? <Book size={16} className="mr-2" /> : <Users size={16} className="mr-2" />}
+                    {formData.userType === 'teacher' ? 'Disciplinas Ministradas' : 'Minhas Turmas'}
+                  </h6>
+                  <div className="pl-lg-4">
+                    {formData.courses.map(course => (
+                      <div key={course.id} className="mb-3 p-3 bg-light rounded">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h6 className="mb-0">{course.name}</h6>
+                            <small className="text-muted">Código: {course.code}</small>
+                          </div>
+                          <Button color="link" size="sm" disabled>
+                            Ver detalhes
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Segurança */}
+                  <hr className="my-4" />
+                  <h6 className="heading-small text-muted mb-4">
+                    <Lock size={16} className="mr-2" />
+                    Segurança
+                  </h6>
+                  <div className="pl-lg-4">
+                    <Button color="secondary" disabled={!editMode}>
+                      Alterar Senha
+                    </Button>
                   </div>
                 </Form>
               </CardBody>

@@ -16,6 +16,7 @@
 
 */
 /*eslint-disable*/
+import logoPNESTP from 'assets/img/PNESTP.png';
 import { useState } from "react";
 import { NavLink as NavLinkRRD, Link } from "react-router-dom";
 // nodejs library to set properties for components
@@ -117,14 +118,21 @@ const Sidebar = (props) => {
         </button>
         {/* Brand */}
         {logo ? (
-          <NavbarBrand className="pt-0" {...navbarBrandProps}>
-            <img
-              alt={logo.imgAlt}
-              className="navbar-brand-img"
-              src={logo.imgSrc}
-            />
-          </NavbarBrand>
-        ) : null}
+  <NavbarBrand to="/">
+  <img
+    alt="PNESTP - Plataforma Nacional de Ensino em STP"
+    src={logoPNESTP}
+    style={{
+         height: "auto",       // Altura automática (mantém proporção)
+        width: "250px",       // Largura fixa - ajuste este valor conforme necessário
+      minWidth: "200px",    // Largura mínima garantida
+      maxHeight: "100px",   // Altura máxima preventiva
+      objectFit: "contain", // Mantém proporções originais
+      objectPosition: "left center" // Alinhamento opcional
+    }}
+  />
+</NavbarBrand>
+) : null}
         {/* User */}
         <Nav className="align-items-center d-md-none">
           <UncontrolledDropdown nav>
@@ -229,11 +237,19 @@ const Sidebar = (props) => {
           </Form>
           {/* Navigation */}
           <Nav navbar>{createLinks(routes)}</Nav>
+
           {/* Divider */}
+          {/* 
           <hr className="my-3" />
+           */}
+           
           {/* Heading */}
+          {/*  
           <h6 className="navbar-heading text-muted">Documentation</h6>
+          */}
+          
           {/* Navigation */}
+          {/*  
           <Nav className="mb-md-3" navbar>
             <NavItem>
               <NavLink href="https://demos.creative-tim.com/argon-dashboard-react/#/documentation/overview?ref=adr-admin-sidebar">
@@ -254,6 +270,9 @@ const Sidebar = (props) => {
               </NavLink>
             </NavItem>
           </Nav>
+           */}
+           
+          {/*  
           <Nav className="mb-md-3" navbar>
             <NavItem className="active-pro active">
               <NavLink href="https://www.creative-tim.com/product/argon-dashboard-pro-react?ref=adr-admin-sidebar">
@@ -262,6 +281,7 @@ const Sidebar = (props) => {
               </NavLink>
             </NavItem>
           </Nav>
+          */}
         </Collapse>
       </Container>
     </Navbar>

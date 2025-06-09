@@ -1,77 +1,65 @@
-/*!
+import Home from "./views/Home";
+import PainelProfessor from './views/PainelProfessor';
+import Index from "views/Index";
+import Profile from "views/examples/Profile";
+import Register from "views/examples/Register";
+import Login from "views/examples/Login";
+import PainelAluno from './views/PainelAluno';
 
-=========================================================
-* Argon Dashboard React - v1.2.4
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import Index from "views/Index.js";
-import Profile from "views/examples/Profile.js";
-import Maps from "views/examples/Maps.js";
-import Register from "views/examples/Register.js";
-import Login from "views/examples/Login.js";
-import Tables from "views/examples/Tables.js";
-import Icons from "views/examples/Icons.js";
-
-var routes = [
+const routes = [
+  {
+    path: "/home",
+    exact: true,
+    icon: "fa fa-home text-success",
+    component: () => <Home />,
+    layout: "/auth",
+  },
   {
     path: "/index",
     name: "Dashboard",
     icon: "ni ni-tv-2 text-primary",
-    component: <Index />,
+    component: () => <Index />,
     layout: "/admin",
   },
   {
-    path: "/icons",
-    name: "Icons",
-    icon: "ni ni-planet text-blue",
-    component: <Icons />,
+    path: "/painel-professor",
+    name: "Painel do Professor",
+    icon: "ni ni-hat-3 text-indigo", // ícone opcional
+    component: () => <PainelProfessor />,
     layout: "/admin",
   },
-  {
-    path: "/maps",
-    name: "Maps",
-    icon: "ni ni-pin-3 text-orange",
-    component: <Maps />,
-    layout: "/admin",
+
+   {
+    path: "/painel-aluno",
+    name: "Painel do Aluno", // nome para o menu
+    icon: "ni ni-single-copy-04 text-green", // 👈 ícone para o aluno
+    component: () => <PainelAluno />,
+    layout: "/admin", // ou outro layout se o painel do aluno tiver layout diferente
   },
+
+
   {
-    path: "/user-profile",
-    name: "User Profile",
+    path: "/perfil",
+    name: "Perfil",
     icon: "ni ni-single-02 text-yellow",
-    component: <Profile />,
-    layout: "/admin",
-  },
-  {
-    path: "/tables",
-    name: "Tables",
-    icon: "ni ni-bullet-list-67 text-red",
-    component: <Tables />,
+    component: () => <Profile />,
     layout: "/admin",
   },
   {
     path: "/login",
     name: "Login",
     icon: "ni ni-key-25 text-info",
-    component: <Login />,
+    component: () => <Login />,
     layout: "/auth",
   },
   {
     path: "/register",
-    name: "Register",
+    name: "Cadastrar",
     icon: "ni ni-circle-08 text-pink",
-    component: <Register />,
+    component: () => <Register />,
     layout: "/auth",
   },
+
 ];
+
 export default routes;

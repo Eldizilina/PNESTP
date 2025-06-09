@@ -1,7 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-
-
+import { useNavigate, Link } from "react-router-dom";
 import {
   Button,
   Card,
@@ -15,150 +14,162 @@ import {
   InputGroup,
   Row,
   Col,
+  Alert,
+  Container
 } from "reactstrap";
 
 const Login = () => {
-  const [mensagem, setMensagem] = useState("");
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const testarAPI = () => {
-    axios.get("http://127.0.0.1:8000/api/teste")
-      .then((res) => {
-        setMensagem(res.data.mensagem);
-        alert("Conexão com API bem-sucedida: " + res.data.mensagem);
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Erro ao conectar com a API.");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError("");
+    
+    if (!email || !senha || !categoria) {
+      setError("Preencha todos os campos!");
+      return;
+    }
+
+    const senhaValida = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(senha);
+    if (!senhaValida) {
+      setError("A senha deve conter letras e números!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.post("http://localhost:8000/api/login", { 
+        email,
+        senha,
+        categoria
       });
+
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userData", JSON.stringify({ email, categoria }));
+
+      switch(categoria) {
+        case "professor": navigate("/professor/dashboard"); break;
+        case "aluno": navigate("/aluno/dashboard"); break;
+        case "diretor": navigate("/diretor/dashboard"); break;
+        default: navigate("/");
+      }
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Erro ao fazer login. Verifique suas credenciais.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <>
-      <Col lg="5" md="7">
-        <Card className="bg-secondary shadow border-0">
-          <CardHeader className="bg-transparent pb-5">
-            <div className="text-muted text-center mt-2 mb-3">
-              <small>Sign in with</small>
-            </div>
-            <div className="btn-wrapper text-center">
-              <Button
-                className="btn-neutral btn-icon"
-                color="default"
-                href="#pablo"
-                onClick={(e) => e.preventDefault()}
-              >
-                <span className="btn-inner--icon">
-                  <img
-                    alt="..."
-                    src={
-                      require("../../assets/img/icons/common/github.svg")
-                        .default
-                    }
-                  />
-                </span>
-                <span className="btn-inner--text">Github</span>
-              </Button>
-              <Button
-                className="btn-neutral btn-icon"
-                color="default"
-                href="#pablo"
-                onClick={(e) => e.preventDefault()}
-              >
-                <span className="btn-inner--icon">
-                  <img
-                    alt="..."
-                    src={
-                      require("../../assets/img/icons/common/google.svg")
-                        .default
-                    }
-                  />
-                </span>
-                <span className="btn-inner--text">Google</span>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardBody className="px-lg-5 py-lg-5">
-            <div className="text-center text-muted mb-4">
-              <small>Or sign in with credentials</small>
-            </div>
-            <Form role="form">
-              <FormGroup className="mb-3">
-                <InputGroup className="input-group-alternative">
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <i className="ni ni-email-83" />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    placeholder="Email"
-                    type="email"
-                    autoComplete="new-email"
-                  />
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <InputGroup className="input-group-alternative">
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <i className="ni ni-lock-circle-open" />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    placeholder="Password"
-                    type="password"
-                    autoComplete="new-password"
-                  />
-                </InputGroup>
-              </FormGroup>
-              <div className="custom-control custom-control-alternative custom-checkbox">
-                <input
-                  className="custom-control-input"
-                  id=" customCheckLogin"
-                  type="checkbox"
-                />
-                <label
-                  className="custom-control-label"
-                  htmlFor=" customCheckLogin"
-                >
-                  <span className="text-muted">Remember me</span>
-                </label>
-              </div>
+    <Container fluid style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+    }}>
+      <Row className="justify-content-center w-100">
+        <Col lg="5" md="7" xs="12">
+          <Card className="shadow-lg border-0" style={{ borderRadius: '15px' }}>
+            <CardHeader className="bg-transparent pb-4">
               <div className="text-center">
-                <Button className="my-4" color="primary" type="button" onClick={testarAPI}>
-                  Sign in
-                </Button>
-                {mensagem && (
-                  <div className="text-center mt-3">
-                    <small className="text-success">{mensagem}</small>
-                  </div>
-                )}
-
+                <h3>Acesse sua conta</h3>
               </div>
-            </Form>
-          </CardBody>
-        </Card>
-        <Row className="mt-3">
-          <Col xs="6">
-            <a
-              className="text-light"
-              href="#pablo"
-              onClick={(e) => e.preventDefault()}
-            >
-              <small>Forgot password?</small>
-            </a>
-          </Col>
-          <Col className="text-right" xs="6">
-            <a
-              className="text-light"
-              href="#pablo"
-              onClick={(e) => e.preventDefault()}
-            >
-              <small>Create new account</small>
-            </a>
-          </Col>
-        </Row>
-      </Col>
-    </>
+            </CardHeader>
+            
+            <CardBody className="px-lg-5 py-lg-4">
+              {error && <Alert color="danger">{error}</Alert>}
+              
+              <Form onSubmit={handleLogin}>
+                {/* Formulário mantido igual */}
+                <FormGroup className="mb-3">
+                  <InputGroup className="input-group-alternative">
+                    <InputGroupAddon addonType="prepend">
+                      <InputGroupText>
+                        <i className="ni ni-email-83" />
+                      </InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      placeholder="Email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </InputGroup>
+                </FormGroup>
+
+                <FormGroup className="mb-3">
+                  <InputGroup className="input-group-alternative">
+                    <InputGroupAddon addonType="prepend">
+                      <InputGroupText>
+                        <i className="ni ni-lock-circle-open" />
+                      </InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      placeholder="Senha"
+                      type="password"
+                      value={senha}
+                      onChange={(e) => setSenha(e.target.value)}
+                      required
+                    />
+                  </InputGroup>
+                  <small className="text-muted">A senha deve conter letras e números</small>
+                </FormGroup>
+
+                <FormGroup className="mb-4">
+                  <Input
+                    type="select"
+                    value={categoria}
+                    onChange={(e) => setCategoria(e.target.value)}
+                    required
+                    className="form-control-alternative"
+                  >
+                    <option value="">Selecione seu perfil</option>
+                    <option value="professor">Professor</option>
+                    <option value="aluno">Aluno</option>
+                    <option value="diretor">Diretor de Turma</option>
+                  </Input>
+                </FormGroup>
+
+                <div className="text-center">
+                  <Button 
+                    className="my-3" 
+                    color="primary" 
+                    type="submit"
+                    disabled={loading}
+                    block
+                  >
+                    {loading ? "Carregando..." : "Entrar"}
+                  </Button>
+                </div>
+              </Form>
+            </CardBody>
+
+            <div className="px-4 pb-4">
+              <Row>
+                <Col xs="6">
+                  <a className="text-muted" href="/recuperar-senha">
+                    <small>Esqueceu a senha?</small>
+                  </a>
+                </Col>
+                <Col xs="6" className="text-right">
+                  <Link to="/auth/register" className="text-primary">
+                    <small>Criar nova conta</small>
+                  </Link>
+                </Col>
+              </Row>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

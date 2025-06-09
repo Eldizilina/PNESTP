@@ -1,19 +1,17 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import AdminLayout from "layouts/Admin.js";
+import AuthLayout from "layouts/Auth.js";
 
 function App() {
-  const [mensagem, setMensagem] = useState('');
-
-  useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/teste')
-      .then(res => setMensagem(res.data.mensagem))
-      .catch(err => console.error(err));
-  }, []);
-
   return (
-    <div>
-      <h1>{mensagem || 'Carregando...'}</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/auth/*" element={<AuthLayout />} />
+        <Route path="*" element={<Navigate to="/auth/login" />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
