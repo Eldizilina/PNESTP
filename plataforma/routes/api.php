@@ -1,27 +1,43 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\UtilizadorController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| Rotas Públicas
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
+| Acesso livre — não requer autenticação
 */
 
-// routes/api.php: endpoints para utilizador
-//Route::get('/usuarios', [UsuarioController::class, 'index']);
+// Rota para cadastro de utilizadores (aluno, professor, diretor)
+Route::post('/cadastro', [UtilizadorController::class, 'store']);
 
-Route::get('/teste', function () {
-    return response()->json([
-        'mensagem' => 'API Laravel conectada com sucesso!',
-        'status' => 'ok',
-    ]);
+// Rota para login — retorna um token JWT do Passport se sucesso
+Route::post('/login', [UtilizadorController::class, 'login']);
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Rotas Protegidas
+|--------------------------------------------------------------------------
+| Essas rotas exigem um token de autenticação válido (Bearer token)
+| Para acessar, é necessário enviar no cabeçalho:
+| Authorization: Bearer SEU_TOKEN
+*/
+
+Route::middleware('auth:api')->group(function () {
+
+    // Lista todos os utilizadores (apenas acessível com token válido)
+    Route::get('/utilizadores', [UtilizadorController::class, 'index']);
+
+    // Logout — revoga o token atual
+    Route::post('/logout', [UtilizadorController::class, 'logout']);
+
+    // Aqui poderias adicionar mais rotas protegidas:
+    // Route::get('/perfil', [UtilizadorController::class, 'perfil']);
 });
-    
+
 
