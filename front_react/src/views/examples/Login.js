@@ -21,8 +21,8 @@ import {
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-  const [categoria, setCategoria] = useState("");
+  const [password, setPassword] = useState("");
+  const [perfil, setPerfil] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -30,13 +30,13 @@ const Login = () => {
     e.preventDefault();
     setError("");
     
-    if (!email || !senha || !categoria) {
+    if (!email || !password || !perfil) {
       setError("Preencha todos os campos!");
       return;
     }
 
-    const senhaValida = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(senha);
-    if (!senhaValida) {
+    const passwordValida = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(password);
+    if (!passwordValida) {
       setError("A senha deve conter letras e números!");
       return;
     }
@@ -45,14 +45,14 @@ const Login = () => {
       setLoading(true);
       const response = await axios.post("http://localhost:8000/api/login", { 
         email,
-        senha,
-        categoria
+        password,
+        perfil
       });
 
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("userData", JSON.stringify({ email, categoria }));
+      localStorage.setItem("userData", JSON.stringify({ email, perfil }));
 
-      switch(categoria) {
+      switch(perfil) {
         case "professor": navigate("/professor/dashboard"); break;
         case "aluno": navigate("/aluno/dashboard"); break;
         case "diretor": navigate("/diretor/dashboard"); break;
@@ -115,8 +115,8 @@ const Login = () => {
                     <Input
                       placeholder="Senha"
                       type="password"
-                      value={senha}
-                      onChange={(e) => setSenha(e.target.value)}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       required
                     />
                   </InputGroup>
@@ -126,8 +126,8 @@ const Login = () => {
                 <FormGroup className="mb-4">
                   <Input
                     type="select"
-                    value={categoria}
-                    onChange={(e) => setCategoria(e.target.value)}
+                    value={perfil}
+                    onChange={(e) => setPerfil(e.target.value)}
                     required
                     className="form-control-alternative"
                   >

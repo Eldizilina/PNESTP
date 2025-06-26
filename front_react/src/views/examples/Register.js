@@ -23,9 +23,9 @@ const Cadastro = () => {
   const [formData, setFormData] = useState({
     nome: '',
     email: '',
-    senha: '',
-    confirmarSenha: '',
-    categoria: '',
+    password: '',
+    confirmarPassword: '',
+    perfil: '',
     escola: ''
   });
   const [error, setError] = useState('');
@@ -50,22 +50,22 @@ const Cadastro = () => {
       return false;
     }
 
-    if (!/^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(formData.senha)) {
-      setError('A senha deve conter letras e números, com no mínimo 6 caracteres');
+    if (!/^(?=.*[A-Za-z])(?=.*\d).{6,}$/.test(formData.password)) {
+      setError('A password deve conter letras e números, com no mínimo 6 caracteres');
       return false;
     }
 
-    if (formData.senha !== formData.confirmarSenha) {
-      setError('As senhas não coincidem!');
+    if (formData.password !== formData.confirmarPassword) {
+      setError('As Senhas não coincidem!');
       return false;
     }
 
-    if (!formData.categoria) {
+    if (!formData.perfil) {
       setError('Selecione uma categoria');
       return false;
     }
 
-    if (formData.categoria === 'aluno' && !formData.escola) {
+    if (formData.perfil === 'aluno' && !formData.escola) {
       setError('Nome da escola é obrigatório para alunos');
       return false;
     }
@@ -84,9 +84,9 @@ const Cadastro = () => {
       const userData = {
         nome: formData.nome.trim(),
         email: formData.email.trim(),
-        senha: formData.senha,
-        categoria: formData.categoria,
-        ...(formData.categoria === 'aluno' && { 
+        password: formData.password,
+        perfil: formData.perfil,
+        ...(formData.perfil === 'aluno' && { 
           escola: formData.escola.trim() 
         })
       };
@@ -180,8 +180,8 @@ const Cadastro = () => {
                         <Input
                           placeholder="Senha"
                           type="password"
-                          name="senha"
-                          value={formData.senha}
+                          name="password"
+                          value={formData.password}
                           onChange={handleChange}
                           required
                         />
@@ -197,10 +197,10 @@ const Cadastro = () => {
                           </InputGroupText>
                         </InputGroupAddon>
                         <Input
-                          placeholder="Confirmar senha"
+                          placeholder="Confirmar Senha"
                           type="password"
-                          name="confirmarSenha"
-                          value={formData.confirmarSenha}
+                          name="confirmarPassword"
+                          value={formData.confirmarPassword}
                           onChange={handleChange}
                           required
                         />
@@ -208,7 +208,7 @@ const Cadastro = () => {
                     </FormGroup>
                   </Col>
                 </Row>
-                <small className="text-muted d-block mb-2">Senha deve conter letras e números (mínimo 6 caracteres)</small>
+                <small className="text-muted d-block mb-2">A senha deve conter letras e números (mínimo 6 caracteres)</small>
 
                 <FormGroup className="mb-2">
                   <InputGroup className="input-group-alternative">
@@ -219,8 +219,8 @@ const Cadastro = () => {
                     </InputGroupAddon>
                     <Input
                       type="select"
-                      name="categoria"
-                      value={formData.categoria}
+                      name="perfil"
+                      value={formData.perfil}
                       onChange={handleChange}
                       required
                     >
@@ -232,7 +232,7 @@ const Cadastro = () => {
                   </InputGroup>
                 </FormGroup>
 
-                {formData.categoria === 'aluno' && (
+                {formData.perfil === 'aluno' && (
                   <FormGroup className="mb-3">
                     <InputGroup className="input-group-alternative">
                       <InputGroupAddon addonType="prepend">
