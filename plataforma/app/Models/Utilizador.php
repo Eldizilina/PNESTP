@@ -14,20 +14,28 @@ class Utilizador extends Authenticatable
     // Laravel assume o nome da tabela como 'utilizadors', então especificamos corretamente:
     protected $table = 'utilizadores';
 
-    // Se tua tabela tem as colunas created_at e updated_at, deixa como true
+    // Como a tabela tem as colunas created_at e updated_at, deixei como true
     public $timestamps = true;
 
     // Campos que podem ser preenchidos em massa
     protected $fillable = [
-        'nome',
+         'nome',
         'email',
         'password',
-        'perfil'
+        'perfil',
+        'first_name',
+        'last_name',
+        'endereco',
+        'cidade',
+        'pais',
+        'sobre_mim',
+        'foto_perfil',
     ];
 
     // Oculta a senha nas respostas JSON
     protected $hidden = [
         'password',
+        'remember_token',
     ];
 
     // Informa ao Laravel qual campo é usado para autenticação

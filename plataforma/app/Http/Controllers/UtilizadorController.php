@@ -82,4 +82,73 @@ class UtilizadorController extends Controller
     return response()->json(['message' => 'Logout efetuado com sucesso.']);
 }
 
+// metodo para apresentar o perfil
+public function showProfile(Request $request)
+{
+    $user = auth()->user();
+
+    return response()->json([
+        'nome' => $user->nome,
+        'email' => $user->email,
+        'primeiro_nome' => $user->primeiro_nome,
+        'ultimo_nome' => $user->ultimo_nome,
+        'endereco' => $user->endereco,
+        'cidade' => $user->cidade,
+        'pais' => $user->pais,
+        'sobre_mim' => $user->sobre_mim,
+        'userType' => $user->perfil,
+        'foto_perfil' => $user->foto_perfil,
+    ]);
+}
+
+// Metodo para atualização do perfil
+public function atualizarPerfil(Request $request)
+{
+    $user = auth()->user();
+
+    $request->validate([
+        'nome' => 'sometimes|string|max:255',
+        'email' => 'sometimes|email|unique:utilizadores,email,' . $user->id,
+        'password' => 'sometimes|string|min:6|confirmed',
+        'primeiro_nome' => 'nullable|string|max:100',
+        'ultimo_nome' => 'nullable|string|max:100',
+        'endereco' => 'nullable|string|max:255',
+        'cidade' => 'nullable|string|max:100',
+        'pais' => 'nullable|string|max:100',
+        'sobre_mim' => 'nullable|string',
+        'foto_perfil' => 'nullable|string', // Base64 ou URL
+    ]);
+
+     if ($request->has('nome')) $user->nome = $request->nome;
+    if ($request->has('email')) $user->email = $request->email;
+    if ($request->has('password')) $user->password = Hash::make($request->password);
+    if ($request->has('firstName')) $user->primeiro_nome = $request->primeiro_nome;
+    if ($request->has('lastName')) $user->ultimo_nome = $request->ultimo_nome;
+    if ($request->has('endereco')) $user->endereco = $request->endereco;
+    if ($request->has('cidade')) $user->cidade = $request->cidade;
+    if ($request->has('pais')) $user->pais = $request->pais;
+    if ($request->has('sobre_mim')) $user->sobre_mim = $request->sobre_mim;
+    if ($request->has('foto_perfil')) $user->foto_perfil = $request->foto_perfil;
+
+    $user->save();
+
+    return response()->json(['message' => 'Perfil atualizado com sucesso.', 'utilizador' => $user]);
+}
+
+
+public function perfil(Request $request)
+{
+    return response()->json([
+        'utilizador' => $request->user(),
+    ]);
+}
+
+
+
+
+
+
+
+
+
 }
