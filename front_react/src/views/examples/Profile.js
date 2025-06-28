@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Button,
   Card,
@@ -10,44 +11,60 @@ import {
   Container,
   Row,
   Col,
-  Badge
+  Badge,
 } from "reactstrap";
-import UserHeader from '../../components/Headers/UserHeader';
-import { Edit, Save, Lock, Book, Users, Mail, X, User, Camera } from 'react-feather';
-
-const LOCAL_STORAGE_KEY = "userProfileData";
+import UserHeader from "../../components/Headers/UserHeader";
+import {
+  Edit,
+  Save,
+  Lock,
+  Book,
+  Users,
+  Mail,
+  X,
+  User,
+} from "react-feather";
 
 const Profile = () => {
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "Aline jesse",
-    email: "jesse@example.com",
-    firstName: "Aline",
-    lastName: "Jesse",
-    address: "São Tomé",
-    city: "Água Grande",
-    country: "São Tomé e Príncipe",
-    aboutMe: "Sou estudante universitário.",
-    userType: "student",
-    profilePhoto: "", // base64 ou URL da imagem
-    courses: [
-      { id: 1, name: "Matemática Avançada", code: "MAT202" },
-      { id: 2, name: "Física Quântica", code: "FIS301" }
-    ]
-  });
+  const [formData, setFormData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
+  // Busca dados do usuário logado ao montar
   useEffect(() => {
-    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedData) {
-      setFormData(JSON.parse(savedData));
-    }
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("token"); // ajuste conforme seu storage de token
+        const response = await axios.get('http://localhost:8000/api/perfil', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setFormData(response.data.utilizador);
+      } catch (error) {
+        console.error("Erro ao carregar perfil:", error);
+        alert("Erro ao carregar perfil");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserProfile();
   }, []);
 
+  // Enquanto carrega dados, mostra loading
+  if (loading) return <div>Carregando perfil...</div>;
+
+  if (!formData)
+    return (
+      <div>
+        Erro ao carregar perfil. Tente novamente mais tarde.
+      </div>
+    );
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handlePhotoChange = (e) => {
@@ -55,44 +72,75 @@ const Profile = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, profilePhoto: reader.result }));
+        setFormData((prev) => ({
+          ...prev,
+          foto_perfil: reader.result,
+        }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
-    setEditMode(false);
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put("http://localhost:8000/api/perfil/atualizar", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert("Perfil atualizado com sucesso!");
+      setEditMode(false);
+    } catch (error) {
+      console.error("Erro ao atualizar perfil:", error);
+      alert("Erro ao atualizar perfil");
+    }
   };
 
   const handleCancel = () => {
-    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (savedData) {
-      setFormData(JSON.parse(savedData));
-    }
-    setEditMode(false);
+    // Recarrega dados do backend para resetar o form
+    setLoading(true);
+    axios
+      .get("/api/perfil", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((response) => {
+        setFormData(response.data.utilizador);
+        setEditMode(false);
+      })
+      .catch(() => {
+        alert("Erro ao recarregar perfil");
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
     <>
       <UserHeader />
-      <Container style={{ marginTop: '-280px' }} fluid>
+      <Container style={{ marginTop: "-280px" }} fluid>
         <Row>
           <Col className="order-xl-1" xl="10" lg="12" md="12" sm="12">
-            <Card className="bg-secondary shadow" style={{ marginTop: '-280px' }}>
+            <Card className="bg-secondary shadow" style={{ marginTop: "-280px" }}>
               <CardHeader className="bg-white border-0">
                 <Row className="align-items-center">
                   <Col xs="8">
                     <h3 className="mb-0">Minha Conta</h3>
-                    <Badge color={formData.userType === 'teacher' ? 'info' : 'success'} className="mt-2">
-                      {formData.userType === 'teacher' ? 'Professor' : 'Aluno'}
+                    <Badge
+                      color={formData.userType === "professor" ? "info" : "success"}
+                      className="mt-2"
+                    >
+                      {formData.userType === "professor" ? "Professor" : "Aluno"}
                     </Badge>
                   </Col>
                   <Col className="text-right" xs="4">
                     {editMode ? (
                       <>
-                        <Button color="danger" onClick={handleCancel} size="sm" className="mr-2">
+                        <Button
+                          color="danger"
+                          onClick={handleCancel}
+                          size="sm"
+                          className="mr-2"
+                        >
                           <X size={14} className="mr-1" />
                           Cancelar
                         </Button>
@@ -102,7 +150,11 @@ const Profile = () => {
                         </Button>
                       </>
                     ) : (
-                      <Button color="primary" onClick={() => setEditMode(true)} size="sm">
+                      <Button
+                        color="primary"
+                        onClick={() => setEditMode(true)}
+                        size="sm"
+                      >
                         <Edit size={14} className="mr-1" />
                         Editar Perfil
                       </Button>
@@ -116,7 +168,9 @@ const Profile = () => {
                   {/* Foto de Perfil */}
                   <div className="text-center mb-4">
                     <img
-                      src={formData.profilePhoto || "https://via.placeholder.com/150"}
+                      src={
+                        formData.foto_perfil || "https://via.placeholder.com/150"
+                      }
                       alt="Foto de perfil"
                       className="rounded-circle"
                       width="150"
@@ -136,18 +190,18 @@ const Profile = () => {
                   {/* Informações do Usuário */}
                   <h6 className="heading-small text-muted mb-4">
                     <Mail size={16} className="mr-2" />
-                    Informações do Usuário
+                    Informações do Utilizador
                   </h6>
                   <div className="pl-lg-4">
                     <Row>
                       <Col lg="6">
                         <FormGroup>
-                          <label htmlFor="input-username">Nome de utilizador</label>
+                          <label htmlFor="input-nome">Nome</label>
                           <Input
-                            id="input-username"
-                            name="username"
+                            id="input-nome"
+                            name="nome"
                             type="text"
-                            value={formData.username}
+                            value={formData.nome || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
@@ -160,35 +214,37 @@ const Profile = () => {
                             id="input-email"
                             name="email"
                             type="email"
-                            value={formData.email}
+                            value={formData.email || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                     </Row>
+
                     <Row>
                       <Col lg="6">
                         <FormGroup>
-                          <label htmlFor="input-first-name">Nome</label>
+                          <label htmlFor="input-primeiro-nome">Primeiro Nome</label>
                           <Input
-                            id="input-first-name"
-                            name="firstName"
+                            id="input-primeiro-nome"
+                            name="primeiro_nome"
                             type="text"
-                            value={formData.firstName}
+                            value={formData.primeiro_nome || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
+
                       <Col lg="6">
                         <FormGroup>
-                          <label htmlFor="input-last-name">Sobrenome</label>
+                          <label htmlFor="input-ultimo-nome">Último Nome</label>
                           <Input
-                            id="input-last-name"
-                            name="lastName"
+                            id="input-ultimo-nome"
+                            name="ultimo_nome"
                             type="text"
-                            value={formData.lastName}
+                            value={formData.ultimo_nome || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
@@ -208,40 +264,42 @@ const Profile = () => {
                     <Row>
                       <Col md="12">
                         <FormGroup>
-                          <label htmlFor="input-address">Endereço</label>
+                          <label htmlFor="input-endereco">Endereço</label>
                           <Input
-                            id="input-address"
-                            name="address"
+                            id="input-endereco"
+                            name="endereco"
                             type="text"
-                            value={formData.address}
+                            value={formData.endereco || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
                     </Row>
+
                     <Row>
                       <Col lg="4">
                         <FormGroup>
-                          <label htmlFor="input-city">Cidade</label>
+                          <label htmlFor="input-cidade">Cidade</label>
                           <Input
-                            id="input-city"
-                            name="city"
+                            id="input-cidade"
+                            name="cidade"
                             type="text"
-                            value={formData.city}
+                            value={formData.cidade || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
                         </FormGroup>
                       </Col>
+
                       <Col lg="4">
                         <FormGroup>
-                          <label htmlFor="input-country">País</label>
+                          <label htmlFor="input-pais">País</label>
                           <Input
-                            id="input-country"
-                            name="country"
+                            id="input-pais"
+                            name="pais"
                             type="text"
-                            value={formData.country}
+                            value={formData.pais || ""}
                             onChange={handleChange}
                             disabled={!editMode}
                           />
@@ -261,10 +319,10 @@ const Profile = () => {
                     <FormGroup>
                       <label>Sobre mim</label>
                       <Input
-                        name="aboutMe"
+                        name="sobre_mim"
                         rows="4"
                         type="textarea"
-                        value={formData.aboutMe}
+                        value={formData.sobre_mim || ""}
                         onChange={handleChange}
                         disabled={!editMode}
                       />
@@ -275,16 +333,24 @@ const Profile = () => {
 
                   {/* Cursos ou Disciplinas */}
                   <h6 className="heading-small text-muted mb-4">
-                    {formData.userType === 'teacher' ? <Book size={16} className="mr-2" /> : <Users size={16} className="mr-2" />}
-                    {formData.userType === 'teacher' ? 'Disciplinas Ministradas' : 'Minhas Turmas'}
+                    {formData.userType === "professor" ? (
+                      <Book size={16} className="mr-2" />
+                    ) : (
+                      <Users size={16} className="mr-2" />
+                    )}
+                    {formData.userType === "professor"
+                      ? "Disciplinas Ministradas"
+                      : "Minhas Turmas"}
                   </h6>
                   <div className="pl-lg-4">
-                    {formData.courses.map(course => (
+                    {(formData.courses || []).map((course) => (
                       <div key={course.id} className="mb-3 p-3 bg-light rounded">
                         <div className="d-flex justify-content-between align-items-center">
                           <div>
                             <h6 className="mb-0">{course.name}</h6>
-                            <small className="text-muted">Código: {course.code}</small>
+                            <small className="text-muted">
+                              Código: {course.code}
+                            </small>
                           </div>
                           <Button color="link" size="sm" disabled>
                             Ver detalhes
