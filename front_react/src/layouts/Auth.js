@@ -10,7 +10,7 @@ const Auth = () => {
           <Route
             key={key}
             path={route.path}
-            element={<route.component />} // Agora renderiza corretamente
+            element={<route.component />} 
             exact={route.exact}
           />
         );
