@@ -43,4 +43,13 @@ class Utilizador extends Authenticatable
     {
         return $this->password;
     }
+
+public function salasComoProfessor()
+{
+    return $this->belongsToMany(Sala::class, 'professores_sala', 'professor_id', 'salas_aula_id');
+}
+
+
+
+
 }

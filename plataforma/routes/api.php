@@ -56,9 +56,26 @@ Route::middleware(['auth:api', 'diretor'])->group(function () {
     Route::post('/salas', [SalaController::class, 'store']);         // Criar sala
     Route::get('/salas', [SalaController::class, 'index']);          // Listar salas do diretor
     Route::post('/salas/{sala}/convidar', [SalaController::class, 'convidar']); // Convidar membro
+    Route::put('/salas/{id}', [SalaController::class, 'update']); // Atualizar sala
+    Route::post('/salas/{salaId}/adicionar-professor', [SalaController::class, 'associarProfessor']); // add professor
+    Route::delete('/salas/{salaId}/remover-professor/{professorId}', [SalaController::class, 'removerProfessor']); // remover prof
+
 });
 
 // if convite for mandado para um aluno que não está cadastrado então essa rota é  usada no front para verificar se o convite é valido no momento do cadastro
 Route::middleware(['auth:api', 'diretor'])->group(function () {
     Route::post('/convites', [ConviteController::class, 'convidar']); 
+});
+
+/*
+* rota para aceitar convite
+ * também serve para mostrar ao utilizador para que sala ele foi convidado,com que perfil e o nome do diretor da sala
+ *  */
+Route::middleware(['auth:api'])->post('/convites/aceitar/{token}', [ConviteController::class, 'aceitar']);
+
+// rotas para materiais
+Route::middleware('auth:api','professor')->group(function () {
+    Route::post('/materiais', [MaterialController::class, 'store']); // Upload
+    Route::get('/salas/{id}/materiais', [MaterialController::class, 'listarPorSala']); // Listar materiais por sala
+    Route::delete('/materiais/{id}', [MaterialController::class, 'destroy']); // Deletar
 });
