@@ -1,8 +1,8 @@
 // src/components/ui/card.jsx
 import React from "react";
 
-export const Card = ({ children }) => (
-  <div className="bg-white rounded-xl shadow p-4">{children}</div>
+export const Card = ({ children, className = "" }) => (
+  <div className={`rounded-xl shadow p-4 ${className}`}>{children}</div>
 );
 
 export const CardContent = ({ children, className = "" }) => (
